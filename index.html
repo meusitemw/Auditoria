@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AgroVale - Auditoria de Açúcar</title>
+    <title>MWsystem - Auditoria Armazém de Açúcar</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         :root {
@@ -398,6 +398,30 @@
             border-color: var(--primary);
         }
         
+        .qr-code-container {
+            text-align: center;
+            margin: 90px 0;
+        }
+        
+        .qr-code {
+            width: 180px;
+            height: 180px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 10px;
+            border: 1px solid #ddd;
+        }
+        
+        .rfid-tag {
+            display: inline-block;
+            background-color: #f5f5f5;
+            border: 1px solid #ddd;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            margin-top: 10px;
+        }
+        
         @media (max-width: 768px) {
             .dashboard {
                 grid-template-columns: 1fr;
@@ -436,7 +460,7 @@
     <header>
         <div class="logo">
             <img src="https://via.placeholder.com/150x50?text=AgroVale" alt="AgroVale Logo">
-            <h1>Auditoria de Açúcar</h1>
+            <h1>Auditoria Armazém de Açúcar</h1>
         </div>
         <nav>
             <ul>
@@ -456,28 +480,28 @@
                 <h3><i class="fas fa-pallet"></i> Lotes Ativos</h3>
                 <div class="stat"><i class="fas fa-box-open"></i> <span id="active-lots">24</span></div>
                 <p>Total de lotes em armazenamento</p>
-                <a href="#" class="btn" style="margin-top: 10px;"><i class="fas fa-plus"></i> Ver Todos</a>
+                <a href="#" class="btn" style="margin-top: 10px;" id="view-all-lots"><i class="fas fa-plus"></i> Ver Todos</a>
             </div>
             
             <div class="card">
                 <h3><i class="fas fa-exclamation-triangle"></i> Alertas</h3>
                 <div class="stat"><i class="fas fa-bell"></i> <span id="alerts">3</span></div>
                 <p>Lotes com condições críticas</p>
-                <a href="#" class="btn btn-warning" style="margin-top: 10px;"><i class="fas fa-search"></i> Ver Alertas</a>
+                <a href="#" class="btn btn-warning" style="margin-top: 10px;" id="view-alerts"><i class="fas fa-search"></i> Ver Alertas</a>
             </div>
             
             <div class="card">
                 <h3><i class="fas fa-clipboard-check"></i> Auditorias</h3>
                 <div class="stat"><i class="fas fa-calendar-alt"></i> <span id="next-audits">5</span></div>
                 <p>Para esta semana</p>
-                <a href="#" class="btn btn-info" style="margin-top: 10px;"><i class="fas fa-list"></i> Agendar</a>
+                <a href="#" class="btn btn-info" style="margin-top: 10px;" id="schedule-audit"><i class="fas fa-list"></i> Agendar</a>
             </div>
             
             <div class="card">
                 <h3><i class="fas fa-thermometer-half"></i> Armazém</h3>
                 <div class="stat"><i class="fas fa-temperature-low"></i> <span id="warehouse-temp">23°C</span></div>
                 <p>Condições atuais</p>
-                <a href="#" class="btn" style="margin-top: 10px;"><i class="fas fa-warehouse"></i> Monitorar</a>
+                <a href="#" class="btn" style="margin-top: 10px;" id="monitor-warehouse"><i class="fas fa-warehouse"></i> Monitorar</a>
             </div>
         </div>
         
@@ -541,6 +565,7 @@
                 <div class="tab active" data-tab="info">Informações Básicas</div>
                 <div class="tab" data-tab="quality">Controle de Qualidade</div>
                 <div class="tab" data-tab="sensors">Monitoramento</div>
+                <div class="tab" data-tab="identification">Identificação</div>
             </div>
             
             <form id="lot-form">
@@ -662,6 +687,26 @@
                             <textarea id="lot-sensor-notes" placeholder="Anomalias detectadas, ações tomadas..."></textarea>
                         </div>
                     </div>
+                    
+                    <div class="tab-content" id="identification-tab">
+                        <h4><i class="fas fa-qrcode"></i> Identificação do Lote</h4>
+                        
+                        <div class="form-group">
+                            <label>Identificador Automático</label>
+                            <div class="rfid-tag" id="rfid-tag">RFID: AV-<span id="rfid-code">000000</span></div>
+                        </div>
+                        
+                        <div class="qr-code-container">
+                            <label>QR Code para Leitura Rápida</label>
+                            <div class="qr-code" id="qr-code-placeholder">
+                                <!-- QR Code será gerado via JavaScript -->
+                                <canvas id="qr-code-canvas"></canvas>
+                            </div>
+                            <button type="button" class="btn" id="print-qr-btn" style="margin-top: 10px;">
+                                <i class="fas fa-print"></i> Imprimir Etiqueta
+                            </button>
+                        </div>
+                    </div>
                 </div>
                 
                 <div style="display: flex; justify-content: space-between; margin-top: 20px;">
@@ -686,6 +731,7 @@
                 <div class="tab" data-tab="detail-history">Histórico</div>
                 <div class="tab" data-tab="detail-audits">Auditorias</div>
                 <div class="tab" data-tab="detail-documents">Documentos</div>
+                <div class="tab" data-tab="detail-identification">Identificação</div>
             </div>
             
             <div class="tab-container">
@@ -732,6 +778,28 @@
                     </div>
                     <button class="btn" style="margin-top: 15px;"><i class="fas fa-plus"></i> Adicionar Documento</button>
                 </div>
+                
+                <div class="tab-content" id="detail-identification-tab">
+                    <div class="qr-code-container">
+                        <h4><i class="fas fa-qrcode"></i> QR Code do Lote</h4>
+                        <div class="qr-code" id="detail-qr-code">
+                            <!-- QR Code será gerado via JavaScript -->
+                        </div>
+                        <button class="btn" style="margin-top: 10px;" id="detail-print-qr">
+                            <i class="fas fa-print"></i> Imprimir Etiqueta
+                        </button>
+                    </div>
+                    
+                    <div style="margin-top: 20px;">
+                        <h4><i class="fas fa-id-card"></i> Identificação RFID</h4>
+                        <div class="rfid-tag" id="detail-rfid-tag">
+                            <!-- RFID será preenchido via JavaScript -->
+                        </div>
+                        <button class="btn" style="margin-top: 10px;" id="copy-rfid">
+                            <i class="fas fa-copy"></i> Copiar Código RFID
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -759,10 +827,192 @@
         </div>
     </div>
     
+    <!-- Modal de Ver Todos os Lotes -->
+    <div id="all-lots-modal" class="modal">
+        <div class="modal-content" style="max-width: 900px;">
+            <span class="close">&times;</span>
+            <h2><i class="fas fa-list"></i> Todos os Lotes</h2>
+            
+            <div class="search-container" style="margin-bottom: 20px;">
+                <input type="text" class="search-input" placeholder="Pesquisar lotes..." id="all-lots-search">
+                <select class="filter-select" id="all-lots-status-filter">
+                    <option value="">Todos Status</option>
+                    <option value="ok">Normal</option>
+                    <option value="warning">Atenção</option>
+                    <option value="danger">Crítico</option>
+                </select>
+                <select class="filter-select" id="all-lots-type-filter">
+                    <option value="">Todos Tipos</option>
+                    <option value="Cristal">Cristal</option>
+                    <option value="Demerara">Demerara</option>
+                    <option value="VHP">VHP</option>
+                    <option value="Refinado">Refinado</option>
+                </select>
+            </div>
+            
+            <table id="all-lots-table">
+                <thead>
+                    <tr>
+                        <th>Código</th>
+                        <th>Tipo</th>
+                        <th>Data Produção</th>
+                        <th>Qtd. Fardos</th>
+                        <th>Localização</th>
+                        <th>Status</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Dados serão inseridos via JavaScript -->
+                </tbody>
+            </table>
+            
+            <div class="pagination" id="all-lots-pagination">
+                <!-- Paginação será inserida via JavaScript -->
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal de Alertas -->
+    <div id="alerts-modal" class="modal">
+        <div class="modal-content" style="max-width: 900px;">
+            <span class="close">&times;</span>
+            <h2><i class="fas fa-exclamation-triangle"></i> Alertas e Não Conformidades</h2>
+            
+            <div class="search-container" style="margin-bottom: 20px;">
+                <input type="text" class="search-input" placeholder="Pesquisar alertas..." id="alerts-search">
+                <select class="filter-select" id="alerts-level-filter">
+                    <option value="">Todos Níveis</option>
+                    <option value="warning">Atenção</option>
+                    <option value="danger">Crítico</option>
+                </select>
+            </div>
+            
+            <table id="alerts-table">
+                <thead>
+                    <tr>
+                        <th>Lote</th>
+                        <th>Tipo</th>
+                        <th>Problema</th>
+                        <th>Data</th>
+                        <th>Status</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Dados serão inseridos via JavaScript -->
+                </tbody>
+            </table>
+            
+            <div style="margin-top: 20px;">
+                <button class="btn btn-warning" id="resolve-alerts">
+                    <i class="fas fa-check-circle"></i> Marcar Todos como Resolvidos
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal de Agendamento -->
+    <div id="schedule-modal" class="modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <span class="close">&times;</span>
+            <h2><i class="fas fa-calendar-plus"></i> Agendar Auditoria</h2>
+            
+            <form id="schedule-form">
+                <div class="form-group">
+                    <label for="audit-type">Tipo de Auditoria</label>
+                    <select id="audit-type" class="form-control" required>
+                        <option value="">Selecione...</option>
+                        <option value="qualidade">Controle de Qualidade</option>
+                        <option value="armazenamento">Condições de Armazenamento</option>
+                        <option value="seguranca">Segurança e Higiene</option>
+                        <option value="completa">Auditoria Completa</option>
+                    </select>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="audit-date">Data</label>
+                        <input type="date" id="audit-date" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="audit-time">Hora</label>
+                        <input type="time" id="audit-time" class="form-control" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="audit-lots">Lotes para Auditoria</label>
+                    <select id="audit-lots" class="form-control" multiple>
+                        <!-- Preenchido via JavaScript -->
+                    </select>
+                    <small>Segure Ctrl para selecionar múltiplos lotes</small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="audit-notes">Observações</label>
+                    <textarea id="audit-notes" class="form-control" rows="3"></textarea>
+                </div>
+                
+                <div style="margin-top: 20px; text-align: right;">
+                    <button type="button" class="btn btn-warning" id="cancel-schedule">Cancelar</button>
+                    <button type="submit" class="btn">Agendar Auditoria</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Modal de Monitoramento -->
+    <div id="monitor-modal" class="modal">
+        <div class="modal-content" style="max-width: 900px;">
+            <span class="close">&times;</span>
+            <h2><i class="fas fa-thermometer-half"></i> Monitoramento do Armazém</h2>
+            
+            <div class="sensor-data" style="grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));">
+                <div class="sensor-card">
+                    <div><i class="fas fa-temperature-high"></i> Temperatura</div>
+                    <div class="sensor-value sensor-ok" id="monitor-temp">24°C</div>
+                    <div>Última leitura: <span id="monitor-temp-time">15:42:03</span></div>
+                    <div style="margin-top: 10px;">
+                        <small>Mínima: 22°C | Máxima: 26°C</small>
+                    </div>
+                </div>
+                
+                <div class="sensor-card">
+                    <div><i class="fas fa-tint"></i> Umidade</div>
+                    <div class="sensor-value sensor-ok" id="monitor-humidity">62%</div>
+                    <div>Última leitura: <span id="monitor-humidity-time">15:42:03</span></div>
+                    <div style="margin-top: 10px;">
+                        <small>Mínima: 55% | Máxima: 65%</small>
+                    </div>
+                </div>
+                
+                <div class="sensor-card">
+                    <div><i class="fas fa-bug"></i> Monitor de Pragas</div>
+                    <div class="sensor-value sensor-ok" id="monitor-pests">Normal</div>
+                    <div>Última verificação: <span id="monitor-pests-time">Hoje 09:30</span></div>
+                </div>
+            </div>
+            
+            <div class="chart-container" style="height: 400px; margin-top: 30px;">
+                <canvas id="monitor-chart"></canvas>
+            </div>
+            
+            <div style="margin-top: 30px;">
+                <h3><i class="fas fa-map-marked-alt"></i> Mapa de Sensores</h3>
+                <div style="background: #f5f5f5; height: 300px; display: flex; align-items: center; justify-content: center; border: 1px solid #ddd;">
+                    <p>Mapa do armazém com posição dos sensores</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
+    
     <script>
-        // Dados de exemplo mais completos
+        // Dados de exemplo
         const sampleLots = [
             {
                 id: 1,
@@ -823,7 +1073,8 @@
                         date: "2023-11-16",
                         type: "PDF"
                     }
-                ]
+                ],
+                rfid: "AV001-20231115-001"
             },
             {
                 id: 2,
@@ -878,201 +1129,8 @@
                         notes: "Umidade acima do padrão - aguardando decisão"
                     }
                 ],
-                documents: []
-            },
-            {
-                id: 3,
-                code: "AV-20231110-002",
-                type: "VHP",
-                date: "2023-11-10",
-                displayDate: "10/11/2023",
-                quantity: 150,
-                location: "C3-D7",
-                origin: "TA-2023-035",
-                status: "ok",
-                notes: "Lote para exportação - embalagem especial",
-                quality: {
-                    moisture: 0.18,
-                    purity: 90,
-                    color: "Âmbar",
-                    granulation: "Grossa",
-                    notes: "Excelente qualidade - padrão exportação"
-                },
-                sensors: {
-                    temperature: 23.8,
-                    humidity: 60,
-                    pests: "Normal",
-                    lastUpdate: "2023-11-20T15:38:45"
-                },
-                history: [
-                    {
-                        date: "2023-11-10T09:45:00",
-                        action: "Produção",
-                        user: "Luiz Fernandes",
-                        details: "Lote VHP para exportação"
-                    },
-                    {
-                        date: "2023-11-10T11:20:00",
-                        action: "Armazenamento",
-                        user: "Maria Oliveira",
-                        details: "Armazenado em área de exportação"
-                    },
-                    {
-                        date: "2023-11-12T08:30:00",
-                        action: "Inspeção",
-                        user: "Roberto Alves",
-                        details: "Inspeção para exportação - aprovado"
-                    }
-                ],
-                audits: [
-                    {
-                        date: "2023-11-12",
-                        type: "Exportação",
-                        result: "Aprovado",
-                        user: "Roberto Alves",
-                        notes: "Atende todos os requisitos para exportação"
-                    }
-                ],
-                documents: [
-                    {
-                        name: "Certificado Exportação",
-                        date: "2023-11-12",
-                        type: "PDF"
-                    },
-                    {
-                        name: "Laudo Laboratorial",
-                        date: "2023-11-11",
-                        type: "PDF"
-                    }
-                ]
-            },
-            {
-                id: 4,
-                code: "AV-20231105-004",
-                type: "Refinado",
-                date: "2023-11-05",
-                displayDate: "05/11/2023",
-                quantity: 90,
-                location: "A5-B1",
-                origin: "TA-2023-030",
-                status: "danger",
-                notes: "Lote com possível contaminação - isolado",
-                quality: {
-                    moisture: 0.22,
-                    purity: 110,
-                    color: "Branco",
-                    granulation: "Média",
-                    notes: "Possível contaminação por pragas - em análise"
-                },
-                sensors: {
-                    temperature: 26.5,
-                    humidity: 68,
-                    pests: "Alerta",
-                    lastUpdate: "2023-11-20T15:35:12"
-                },
-                history: [
-                    {
-                        date: "2023-11-05T13:20:00",
-                        action: "Produção",
-                        user: "Fernanda Lima",
-                        details: "Lote produzido - turno da tarde"
-                    },
-                    {
-                        date: "2023-11-05T15:00:00",
-                        action: "Armazenamento",
-                        user: "Pedro Rocha",
-                        details: "Armazenado em A5-B1"
-                    },
-                    {
-                        date: "2023-11-08T09:15:00",
-                        action: "Alerta",
-                        user: "Carlos Mendes",
-                        details: "Possível contaminação por pragas detectada"
-                    },
-                    {
-                        date: "2023-11-08T10:30:00",
-                        action: "Isolamento",
-                        user: "Maria Oliveira",
-                        details: "Lote movido para área de quarentena"
-                    }
-                ],
-                audits: [
-                    {
-                        date: "2023-11-08",
-                        type: "Emergencial",
-                        result: "Reprovado",
-                        user: "Carlos Mendes",
-                        notes: "Contaminação confirmada - avaliar descarte"
-                    }
-                ],
-                documents: [
-                    {
-                        name: "Laudo de Contaminação",
-                        date: "2023-11-08",
-                        type: "PDF"
-                    }
-                ]
-            },
-            {
-                id: 5,
-                code: "AV-20231028-005",
-                type: "Cristal",
-                date: "2023-10-28",
-                displayDate: "28/10/2023",
-                quantity: 110,
-                location: "D4-E8",
-                origin: "TA-2023-028",
-                status: "ok",
-                notes: "Lote padrão - mercado interno",
-                quality: {
-                    moisture: 0.24,
-                    purity: 115,
-                    color: "Branco",
-                    granulation: "Média",
-                    notes: "Dentro dos padrões"
-                },
-                sensors: {
-                    temperature: 24.0,
-                    humidity: 63,
-                    pests: "Normal",
-                    lastUpdate: "2023-11-20T15:30:55"
-                },
-                history: [
-                    {
-                        date: "2023-10-28T10:00:00",
-                        action: "Produção",
-                        user: "João Silva",
-                        details: "Lote padrão - turno da manhã"
-                    },
-                    {
-                        date: "2023-10-28T12:15:00",
-                        action: "Armazenamento",
-                        user: "Ana Costa",
-                        details: "Armazenado em D4-E8"
-                    },
-                    {
-                        date: "2023-10-30T09:00:00",
-                        action: "Auditoria",
-                        user: "Carlos Mendes",
-                        details: "Auditoria de rotina - aprovado"
-                    }
-                ],
-                audits: [
-                    {
-                        date: "2023-10-30",
-                        type: "Qualidade",
-                        result: "Aprovado",
-                        user: "Carlos Mendes",
-                        notes: "Lote dentro dos padrões"
-                    }
-                ],
-                documents: [
-                    {
-                        name: "Laudo de Qualidade",
-                        date: "2023-10-30",
-                        type: "PDF"
-                    }
-                ]
+                documents: [],
+                rfid: "AV002-20231114-003"
             }
         ];
         
@@ -1080,6 +1138,7 @@
         let currentPage = 1;
         const itemsPerPage = 10;
         let sensorChart = null;
+        let monitorChart = null;
         
         // Elementos do DOM
         const lotsTable = document.getElementById('lots-table').getElementsByTagName('tbody')[0];
@@ -1088,6 +1147,10 @@
         const lotModal = document.getElementById('lot-modal');
         const detailModal = document.getElementById('detail-modal');
         const qrModal = document.getElementById('qr-modal');
+        const allLotsModal = document.getElementById('all-lots-modal');
+        const alertsModal = document.getElementById('alerts-modal');
+        const scheduleModal = document.getElementById('schedule-modal');
+        const monitorModal = document.getElementById('monitor-modal');
         const closeModals = document.getElementsByClassName('close');
         const lotForm = document.getElementById('lot-form');
         const searchInput = document.getElementById('search-input');
@@ -1101,12 +1164,17 @@
         const qrInstructions = document.getElementById('qr-instructions');
         const startScanBtn = document.getElementById('start-scan');
         const qrConfirmBtn = document.getElementById('qr-confirm-btn');
+        const viewAllLotsBtn = document.getElementById('view-all-lots');
+        const viewAlertsBtn = document.getElementById('view-alerts');
+        const scheduleAuditBtn = document.getElementById('schedule-audit');
+        const monitorWarehouseBtn = document.getElementById('monitor-warehouse');
         
         // Inicialização
         document.addEventListener('DOMContentLoaded', () => {
             loadLots();
             setupEventListeners();
             updateWarehouseStats();
+            simulateIoTData();
         });
         
         // Configurar listeners de eventos
@@ -1117,21 +1185,21 @@
                     lotModal.style.display = 'none';
                     detailModal.style.display = 'none';
                     qrModal.style.display = 'none';
+                    allLotsModal.style.display = 'none';
+                    alertsModal.style.display = 'none';
+                    scheduleModal.style.display = 'none';
+                    monitorModal.style.display = 'none';
                     stopQRScan();
                 });
             });
             
             // Fechar modais ao clicar fora
             window.addEventListener('click', (event) => {
-                if (event.target === lotModal) {
-                    lotModal.style.display = 'none';
-                }
-                if (event.target === detailModal) {
-                    detailModal.style.display = 'none';
-                }
-                if (event.target === qrModal) {
-                    qrModal.style.display = 'none';
-                    stopQRScan();
+                if (event.target.classList.contains('modal')) {
+                    event.target.style.display = 'none';
+                    if (event.target.id === 'qr-modal') {
+                        stopQRScan();
+                    }
                 }
             });
             
@@ -1191,6 +1259,27 @@
             lotForm.addEventListener('submit', (e) => {
                 e.preventDefault();
                 saveLot();
+            });
+            
+            // Botões do dashboard
+            viewAllLotsBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                showAllLots();
+            });
+            
+            viewAlertsBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                showAlerts();
+            });
+            
+            scheduleAuditBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                showScheduleModal();
+            });
+            
+            monitorWarehouseBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                showMonitorModal();
             });
         }
         
@@ -1365,6 +1454,11 @@
                 
                 document.getElementById('lot-code').value = lotCode;
                 document.getElementById('lot-date').valueAsDate = today;
+                
+                // Gerar RFID e QR Code
+                generateRFID(lotCode);
+                generateQRCode(lotCode);
+                
                 deleteBtn.style.display = 'none';
             }
             
@@ -1434,6 +1528,30 @@
                     }
                 });
             }
+            
+            // Identificação
+            if (lot.rfid) {
+                document.getElementById('rfid-tag').textContent = `RFID: ${lot.rfid}`;
+                generateQRCode(lot.code);
+            } else {
+                generateRFID(lot.code);
+                generateQRCode(lot.code);
+            }
+        }
+        
+        // Gerar RFID para o lote
+        function generateRFID(lotCode) {
+            const rfid = `AV${Math.floor(100 + Math.random() * 900)}-${lotCode.replace('AV-', '').replace('-', '')}`;
+            document.getElementById('rfid-tag').textContent = `RFID: ${rfid}`;
+            return rfid;
+        }
+        
+        // Gerar QR Code
+        function generateQRCode(text) {
+            const qrCodeElement = document.getElementById('qr-code-canvas');
+            QRCode.toCanvas(qrCodeElement, text, { width: 150 }, (error) => {
+                if (error) console.error(error);
+            });
         }
         
         // Gerar dados aleatórios para o gráfico
@@ -1517,7 +1635,7 @@
             const existingLotIndex = sampleLots.findIndex(l => l.code === lotCode);
             
             const lotData = {
-                id: existingLotIndex >= 0 ? sampleLots[existingLotIndex].id : Math.max(...sampleLots.map(l => l.id)) + 1,
+                id: existingLotIndex >= 0 ? sampleLots[existingLotIndex].id : Math.max(...sampleLots.map(l => l.id), 0) + 1,
                 code: lotCode,
                 type: document.getElementById('lot-type').value,
                 date: document.getElementById('lot-date').value,
@@ -1540,6 +1658,7 @@
                     pests: "Normal",
                     lastUpdate: new Date().toISOString()
                 },
+                rfid: document.getElementById('rfid-tag').textContent.replace('RFID: ', ''),
                 history: [],
                 audits: [],
                 documents: []
@@ -1693,6 +1812,46 @@
                 documentsTab.innerHTML = '<p style="text-align: center;">Nenhum documento anexado</p>';
             }
             
+            // Preencher aba de identificação
+            const identificationTab = document.getElementById('detail-identification-tab');
+            identificationTab.innerHTML = '';
+            
+            // QR Code
+            const qrCodeContainer = document.createElement('div');
+            qrCodeContainer.className = 'qr-code-container';
+            qrCodeContainer.innerHTML = `
+                <h4><i class="fas fa-qrcode"></i> QR Code do Lote</h4>
+                <div class="qr-code" id="detail-qr-code-display"></div>
+                <button class="btn" style="margin-top: 10px;" id="detail-print-qr-btn">
+                    <i class="fas fa-print"></i> Imprimir Etiqueta
+                </button>
+            `;
+            identificationTab.appendChild(qrCodeContainer);
+            
+            // Gerar QR Code
+            const qrCodeElement = document.getElementById('detail-qr-code-display');
+            QRCode.toCanvas(qrCodeElement, lot.code, { width: 150 }, (error) => {
+                if (error) console.error(error);
+            });
+            
+            // RFID
+            const rfidContainer = document.createElement('div');
+            rfidContainer.style.marginTop = '20px';
+            rfidContainer.innerHTML = `
+                <h4><i class="fas fa-id-card"></i> Identificação RFID</h4>
+                <div class="rfid-tag">RFID: ${lot.rfid || 'Não cadastrado'}</div>
+                <button class="btn" style="margin-top: 10px;" id="copy-rfid-btn">
+                    <i class="fas fa-copy"></i> Copiar Código RFID
+                </button>
+            `;
+            identificationTab.appendChild(rfidContainer);
+            
+            // Evento para copiar RFID
+            document.getElementById('copy-rfid-btn').addEventListener('click', () => {
+                navigator.clipboard.writeText(lot.rfid || '');
+                alert('Código RFID copiado para a área de transferência!');
+            });
+            
             // Resetar tabs para a primeira
             document.querySelectorAll('#detail-modal .tab').forEach((tab, index) => {
                 tab.classList.toggle('active', index === 0);
@@ -1798,14 +1957,64 @@
             openLotModal(lotId);
         }
         
-        // Atualizar estatísticas do armazém
-        function updateWarehouseStats() {
-            // Simular dados de sensores do armazém
-            const temp = 23 + (Math.random() * 2 - 1);
-            document.getElementById('warehouse-temp').textContent = `${temp.toFixed(1)}°C`;
+        // Simular dados IoT
+        function simulateIoTData() {
+            setInterval(() => {
+                // Gerar dados aleatórios (em um sistema real, estes viriam do WebSocket)
+                const now = new Date();
+                const temp = 23 + (Math.random() * 4 - 2); // Entre 21 e 25
+                const humidity = 60 + (Math.random() * 10 - 5); // Entre 55 e 65
+                const pests = Math.random() > 0.9 ? "Alerta" : "Normal";
+                
+                // Atualizar monitoramento do armazém
+                document.getElementById('warehouse-temp').textContent = `${temp.toFixed(1)}°C`;
+                
+                // Atualizar modal de monitoramento se estiver aberto
+                if (monitorModal.style.display === 'block') {
+                    document.getElementById('monitor-temp').textContent = `${temp.toFixed(1)}°C`;
+                    document.getElementById('monitor-humidity').textContent = `${humidity.toFixed(1)}%`;
+                    document.getElementById('monitor-pests').textContent = pests;
+                    
+                    document.getElementById('monitor-temp-time').textContent = now.toLocaleTimeString();
+                    document.getElementById('monitor-humidity-time').textContent = now.toLocaleTimeString();
+                    document.getElementById('monitor-pests-time').textContent = now.toLocaleDateString('pt-BR');
+                    
+                    // Atualizar classes de status
+                    updateSensorStatus('monitor-temp', temp, 25, 27);
+                    updateSensorStatus('monitor-humidity', humidity, 65, 70);
+                    updateSensorStatus('monitor-pests', pests === 'Alerta' ? 1 : 0, 0.5, 1);
+                }
+                
+                // Atualizar gráfico de monitoramento
+                if (monitorChart) {
+                    const newTempData = monitorChart.data.datasets[0].data.slice(1);
+                    newTempData.push(temp);
+                    
+                    const newHumidityData = monitorChart.data.datasets[1].data.slice(1);
+                    newHumidityData.push(humidity);
+                    
+                    monitorChart.data.datasets[0].data = newTempData;
+                    monitorChart.data.datasets[1].data = newHumidityData;
+                    monitorChart.update();
+                }
+                
+            }, 3000); // Atualizar a cada 3 segundos
+        }
+        
+        // Atualizar status dos sensores
+        function updateSensorStatus(elementId, value, warningThreshold, dangerThreshold) {
+            const element = document.getElementById(elementId);
             
-            // Atualizar a cada 5 segundos
-            setTimeout(updateWarehouseStats, 5000);
+            // Reset classes
+            element.className = 'sensor-value';
+            
+            if (value > dangerThreshold) {
+                element.classList.add('sensor-danger');
+            } else if (value > warningThreshold) {
+                element.classList.add('sensor-warning');
+            } else {
+                element.classList.add('sensor-ok');
+            }
         }
         
         // Iniciar leitura de QR Code
@@ -1868,9 +2077,190 @@
             }
         }
         
+        // Mostrar todos os lotes
+        function showAllLots() {
+            const tableBody = document.getElementById('all-lots-table').getElementsByTagName('tbody')[0];
+            tableBody.innerHTML = '';
+            
+            sampleLots.forEach(lot => {
+                const row = tableBody.insertRow();
+                
+                let statusClass = '';
+                let statusText = '';
+                let statusIcon = '';
+                
+                switch(lot.status) {
+                    case 'ok':
+                        statusClass = 'status-ok';
+                        statusText = 'Normal';
+                        statusIcon = 'fa-check-circle';
+                        break;
+                    case 'warning':
+                        statusClass = 'status-warning';
+                        statusText = 'Atenção';
+                        statusIcon = 'fa-exclamation-triangle';
+                        break;
+                    case 'danger':
+                        statusClass = 'status-danger';
+                        statusText = 'Crítico';
+                        statusIcon = 'fa-times-circle';
+                        break;
+                }
+                
+                row.innerHTML = `
+                    <td>${lot.code}</td>
+                    <td>${lot.type}</td>
+                    <td>${lot.displayDate}</td>
+                    <td>${lot.quantity}</td>
+                    <td>${lot.location}</td>
+                    <td><span class="status ${statusClass}"><i class="fas ${statusIcon}"></i> ${statusText}</span></td>
+                    <td>
+                        <button class="btn" style="padding: 5px 10px; font-size: 12px;" onclick="viewLotDetails(${lot.id})"><i class="fas fa-eye"></i> Detalhes</button>
+                    </td>
+                `;
+            });
+            
+            allLotsModal.style.display = 'block';
+        }
+        
+        // Mostrar alertas
+        function showAlerts() {
+            const tableBody = document.getElementById('alerts-table').getElementsByTagName('tbody')[0];
+            tableBody.innerHTML = '';
+            
+            const alertLots = sampleLots.filter(lot => lot.status !== 'ok');
+            
+            if (alertLots.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="6" style="text-align: center;">Nenhum alerta no momento</td></tr>';
+            } else {
+                alertLots.forEach(lot => {
+                    const row = tableBody.insertRow();
+                    
+                    let problem = '';
+                    if (lot.status === 'danger') {
+                        problem = 'Contaminação por pragas';
+                    } else if (lot.quality?.moisture > 0.3) {
+                        problem = 'Umidade acima do padrão';
+                    } else {
+                        problem = 'Problema não especificado';
+                    }
+                    
+                    row.innerHTML = `
+                        <td>${lot.code}</td>
+                        <td>${lot.type}</td>
+                        <td>${problem}</td>
+                        <td>${lot.displayDate}</td>
+                        <td>${getStatusText(lot.status)}</td>
+                        <td>
+                            <button class="btn" style="padding: 5px 10px; font-size: 12px;" onclick="viewLotDetails(${lot.id})">
+                                <i class="fas fa-eye"></i> Ver
+                            </button>
+                            <button class="btn btn-warning" style="padding: 5px 10px; font-size: 12px;" onclick="resolveAlert(${lot.id})">
+                                <i class="fas fa-check"></i> Resolver
+                            </button>
+                        </td>
+                    `;
+                });
+            }
+            
+            alertsModal.style.display = 'block';
+        }
+        
+        // Resolver alerta
+        function resolveAlert(lotId) {
+            const lot = sampleLots.find(l => l.id === lotId);
+            if (lot) {
+                lot.status = 'ok';
+                loadLots();
+                showAlerts();
+                alert(`Alerta para o lote ${lot.code} resolvido com sucesso!`);
+            }
+        }
+        
+        // Mostrar modal de agendamento
+        function showScheduleModal() {
+            const lotsSelect = document.getElementById('audit-lots');
+            lotsSelect.innerHTML = '';
+            
+            sampleLots.forEach(lot => {
+                const option = document.createElement('option');
+                option.value = lot.id;
+                option.textContent = `${lot.code} - ${lot.type}`;
+                lotsSelect.appendChild(option);
+            });
+            
+            // Definir data padrão para amanhã
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            document.getElementById('audit-date').valueAsDate = tomorrow;
+            
+            // Definir hora padrão para 09:00
+            document.getElementById('audit-time').value = '09:00';
+            
+            scheduleModal.style.display = 'block';
+        }
+        
+        // Mostrar modal de monitoramento
+        function showMonitorModal() {
+            // Inicializar gráfico
+            const ctx = document.getElementById('monitor-chart').getContext('2d');
+            
+            if (monitorChart) {
+                monitorChart.destroy();
+            }
+            
+            monitorChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: Array.from({length: 20}, (_, i) => `${i}s`),
+                    datasets: [
+                        {
+                            label: 'Temperatura (°C)',
+                            data: Array(20).fill(23),
+                            borderColor: '#e53935',
+                            backgroundColor: 'rgba(229, 57, 53, 0.1)',
+                            tension: 0.1
+                        },
+                        {
+                            label: 'Umidade (%)',
+                            data: Array(20).fill(60),
+                            borderColor: '#1e88e5',
+                            backgroundColor: 'rgba(30, 136, 229, 0.1)',
+                            tension: 0.1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    animation: {
+                        duration: 0
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false
+                        }
+                    }
+                }
+            });
+            
+            monitorModal.style.display = 'block';
+        }
+        
+        // Obter texto do status
+        function getStatusText(status) {
+            switch(status) {
+                case 'ok': return 'Normal';
+                case 'warning': return 'Atenção';
+                case 'danger': return 'Crítico';
+                default: return status;
+            }
+        }
+        
         // Funções globais para chamada a partir do HTML
         window.viewLotDetails = viewLotDetails;
         window.editLot = editLot;
+        window.resolveAlert = resolveAlert;
     </script>
 </body>
 </html>
