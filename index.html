@@ -7,13 +7,17 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         :root {
-            --primary: #2e7d32;
-            --secondary: #81c784;
-            --light: #f1f8e9;
-            --dark: #1b5e20;
-            --warning: #ff8f00;
-            --danger: #c62828;
-            --info: #0288d1;
+            --primary: #1976D2;
+            --primary-dark: #1565C0;
+            --primary-light: #BBDEFB;
+            --secondary: #FFFFFF;
+            --accent: #FFC107;
+            --text: #212121;
+            --text-secondary: #757575;
+            --warning: #FFA000;
+            --danger: #D32F2F;
+            --success: #388E3C;
+            --info: #0288D1;
         }
         
         * {
@@ -25,6 +29,7 @@
             margin: 0;
             padding: 0;
             background-color: #f5f5f5;
+            color: var(--text);
         }
         
         header {
@@ -93,6 +98,7 @@
             padding: 20px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
             transition: transform 0.3s, box-shadow 0.3s;
+            border-left: 4px solid var(--primary);
         }
         
         .card:hover {
@@ -102,7 +108,7 @@
         
         .card h3 {
             margin-top: 0;
-            color: var(--dark);
+            color: var(--primary-dark);
             border-bottom: 1px solid #eee;
             padding-bottom: 10px;
             display: flex;
@@ -146,7 +152,7 @@
         }
         
         .btn:hover {
-            background-color: var(--dark);
+            background-color: var(--primary-dark);
         }
         
         .btn-warning {
@@ -154,7 +160,7 @@
         }
         
         .btn-warning:hover {
-            background-color: #e65100;
+            background-color: #FF8F00;
         }
         
         .btn-danger {
@@ -162,7 +168,7 @@
         }
         
         .btn-danger:hover {
-            background-color: #8e0000;
+            background-color: #B71C1C;
         }
         
         .btn-info {
@@ -170,7 +176,15 @@
         }
         
         .btn-info:hover {
-            background-color: #01579b;
+            background-color: #01579B;
+        }
+        
+        .btn-success {
+            background-color: var(--success);
+        }
+        
+        .btn-success:hover {
+            background-color: #2E7D32;
         }
         
         table {
@@ -206,12 +220,8 @@
             align-items: center;
         }
         
-        .status i {
-            margin-right: 5px;
-        }
-        
         .status-ok {
-            background-color: var(--primary);
+            background-color: var(--success);
         }
         
         .status-warning {
@@ -342,7 +352,7 @@
         }
         
         .sensor-ok {
-            color: var(--primary);
+            color: var(--success);
         }
         
         .sensor-warning {
@@ -400,7 +410,7 @@
         
         .qr-code-container {
             text-align: center;
-            margin: 90px 0;
+            margin: 20px 0;
         }
         
         .qr-code {
@@ -420,6 +430,21 @@
             border-radius: 4px;
             font-family: monospace;
             margin-top: 10px;
+        }
+        
+        /* Responsividade melhorada */
+        @media (max-width: 992px) {
+            .dashboard {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .search-container {
+                flex-wrap: wrap;
+            }
+            
+            .search-input, .filter-select {
+                min-width: 100%;
+            }
         }
         
         @media (max-width: 768px) {
@@ -453,13 +478,68 @@
             nav ul li {
                 margin: 5px 10px;
             }
+            
+            table {
+                display: block;
+                overflow-x: auto;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .card {
+                padding: 15px;
+            }
+            
+            .btn {
+                padding: 6px 12px;
+                font-size: 12px;
+            }
+            
+            .stat {
+                font-size: 1.5rem;
+            }
+        }
+        
+        /* Adicionais para melhorar a experiência mobile */
+        .mobile-hidden {
+            display: block;
+        }
+        
+        .desktop-hidden {
+            display: none;
+        }
+        
+        @media (max-width: 768px) {
+            .mobile-hidden {
+                display: none;
+            }
+            
+            .desktop-hidden {
+                display: block;
+            }
+        }
+        
+        /* Melhorias na acessibilidade */
+        a:focus, button:focus, input:focus, select:focus, textarea:focus {
+            outline: 2px solid var(--accent);
+            outline-offset: 2px;
+        }
+        
+        /* Animações suaves */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .modal-content {
+            animation: fadeIn 0.3s ease-in-out;
         }
     </style>
 </head>
 <body>
     <header>
         <div class="logo">
-            <img src="https://via.placeholder.com/150x50?text=AgroVale" alt="AgroVale Logo">
+            <img src="https://via.placeholder.com/150x50?text=MWsystem" alt="MWsystem Logo">
             <h1>Auditoria Armazém de Açúcar</h1>
         </div>
         <nav>
@@ -468,7 +548,7 @@
                 <li><a href="#"><i class="fas fa-pallet"></i> Lotes</a></li>
                 <li><a href="#"><i class="fas fa-chart-line"></i> Relatórios</a></li>
                 <li><a href="#"><i class="fas fa-bell"></i> Alertas</a></li>
-                <li><a href="#"><i class="fas fa-cog"></i> Configurações</a></li>
+                <li class="mobile-hidden"><a href="#"><i class="fas fa-cog"></i> Configurações</a></li>
                 <li><a href="#"><i class="fas fa-sign-out-alt"></i> Sair</a></li>
             </ul>
         </nav>
@@ -480,7 +560,7 @@
                 <h3><i class="fas fa-pallet"></i> Lotes Ativos</h3>
                 <div class="stat"><i class="fas fa-box-open"></i> <span id="active-lots">24</span></div>
                 <p>Total de lotes em armazenamento</p>
-                <a href="#" class="btn" style="margin-top: 10px;" id="view-all-lots"><i class="fas fa-plus"></i> Ver Todos</a>
+                <a href="#" class="btn" style="margin-top: 10px;" id="view-all-lots"><i class="fas fa-list"></i> Ver Todos</a>
             </div>
             
             <div class="card">
@@ -520,7 +600,7 @@
                 <option value="VHP">VHP</option>
                 <option value="Refinado">Refinado</option>
             </select>
-            <button class="btn" id="export-btn"><i class="fas fa-file-export"></i> Exportar</button>
+            <button class="btn btn-success" id="export-btn"><i class="fas fa-file-export"></i> Exportar</button>
         </div>
         
         <div class="card">
@@ -603,6 +683,9 @@
                             <div class="form-group">
                                 <label for="lot-location">Localização no Armazém</label>
                                 <input type="text" id="lot-location" required placeholder="Ex: A12-B5">
+                                <button type="button" class="btn btn-info" style="margin-top: 5px; padding: 5px 10px;" id="get-location-btn">
+                                    <i class="fas fa-map-marker-alt"></i> Usar Minha Localização
+                                </button>
                             </div>
                             <div class="form-group">
                                 <label for="lot-origin">Origem (Talhão)</label>
@@ -651,7 +734,7 @@
                         
                         <div class="form-group">
                             <label for="lot-images">Fotos do Lote</label>
-                            <input type="file" id="lot-images" multiple accept="image/*">
+                            <input type="file" id="lot-images" multiple accept="image/*" capture="environment">
                         </div>
                     </div>
                     
@@ -693,13 +776,12 @@
                         
                         <div class="form-group">
                             <label>Identificador Automático</label>
-                            <div class="rfid-tag" id="rfid-tag">RFID: AV-<span id="rfid-code">000000</span></div>
+                            <div class="rfid-tag" id="rfid-tag">RFID: MW-<span id="rfid-code">000000</span></div>
                         </div>
                         
                         <div class="qr-code-container">
                             <label>QR Code para Leitura Rápida</label>
                             <div class="qr-code" id="qr-code-placeholder">
-                                <!-- QR Code será gerado via JavaScript -->
                                 <canvas id="qr-code-canvas"></canvas>
                             </div>
                             <button type="button" class="btn" id="print-qr-btn" style="margin-top: 10px;">
@@ -1016,7 +1098,7 @@
         const sampleLots = [
             {
                 id: 1,
-                code: "AV-20231115-001",
+                code: "MW-20231115-001",
                 type: "Cristal",
                 date: "2023-11-15",
                 displayDate: "15/11/2023",
@@ -1038,6 +1120,7 @@
                     pests: "Normal",
                     lastUpdate: "2023-11-20T15:42:03"
                 },
+                rfid: "MW001-20231115-001",
                 history: [
                     {
                         date: "2023-11-15T08:30:00",
@@ -1074,11 +1157,14 @@
                         type: "PDF"
                     }
                 ],
-                rfid: "AV001-20231115-001"
+                coordinates: {
+                    latitude: -23.5505,
+                    longitude: -46.6333
+                }
             },
             {
                 id: 2,
-                code: "AV-20231114-003",
+                code: "MW-20231114-003",
                 type: "Demerara",
                 date: "2023-11-14",
                 displayDate: "14/11/2023",
@@ -1100,6 +1186,7 @@
                     pests: "Normal",
                     lastUpdate: "2023-11-20T15:40:21"
                 },
+                rfid: "MW002-20231114-003",
                 history: [
                     {
                         date: "2023-11-14T14:15:00",
@@ -1130,7 +1217,10 @@
                     }
                 ],
                 documents: [],
-                rfid: "AV002-20231114-003"
+                coordinates: {
+                    latitude: -23.5510,
+                    longitude: -46.6340
+                }
             }
         ];
         
@@ -1168,6 +1258,7 @@
         const viewAlertsBtn = document.getElementById('view-alerts');
         const scheduleAuditBtn = document.getElementById('schedule-audit');
         const monitorWarehouseBtn = document.getElementById('monitor-warehouse');
+        const getLocationBtn = document.getElementById('get-location-btn');
         
         // Inicialização
         document.addEventListener('DOMContentLoaded', () => {
@@ -1281,6 +1372,12 @@
                 e.preventDefault();
                 showMonitorModal();
             });
+            
+            // Obter localização
+            getLocationBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                getLocation();
+            });
         }
         
         // Carregar lotes na tabela
@@ -1382,6 +1479,9 @@
             } else {
                 alertCard.style.borderLeft = '4px solid var(--primary)';
             }
+            
+            // Atualizar próximas auditorias (simulação)
+            document.getElementById('next-audits').textContent = Math.min(5, lots.length);
         }
         
         // Atualizar paginação
@@ -1450,7 +1550,7 @@
                 const today = new Date();
                 const dateStr = `${today.getFullYear()}${String(today.getMonth() + 1).padStart(2, '0')}${String(today.getDate()).padStart(2, '0')}`;
                 const randomNum = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
-                const lotCode = `AV-${dateStr}-${randomNum}`;
+                const lotCode = `MW-${dateStr}-${randomNum}`;
                 
                 document.getElementById('lot-code').value = lotCode;
                 document.getElementById('lot-date').valueAsDate = today;
@@ -1504,15 +1604,15 @@
                             {
                                 label: 'Temperatura (°C)',
                                 data: generateRandomData(20, 26, 24),
-                                borderColor: 'rgba(255, 99, 132, 1)',
-                                backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                                borderColor: 'rgba(229, 57, 53, 1)',
+                                backgroundColor: 'rgba(229, 57, 53, 0.1)',
                                 tension: 0.1
                             },
                             {
                                 label: 'Umidade (%)',
                                 data: generateRandomData(55, 70, 24),
-                                borderColor: 'rgba(54, 162, 235, 1)',
-                                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                                borderColor: 'rgba(30, 136, 229, 1)',
+                                backgroundColor: 'rgba(30, 136, 229, 0.1)',
                                 tension: 0.1
                             }
                         ]
@@ -1541,7 +1641,7 @@
         
         // Gerar RFID para o lote
         function generateRFID(lotCode) {
-            const rfid = `AV${Math.floor(100 + Math.random() * 900)}-${lotCode.replace('AV-', '').replace('-', '')}`;
+            const rfid = `MW${Math.floor(100 + Math.random() * 900)}-${lotCode.replace('MW-', '').replace('-', '')}`;
             document.getElementById('rfid-tag').textContent = `RFID: ${rfid}`;
             return rfid;
         }
@@ -1554,12 +1654,12 @@
             });
         }
         
-        // Gerar dados aleatórios para o gráfico
-        function generateRandomData(min, max, count) {
-            return Array.from({length: count}, () => 
-                Math.floor(Math.random() * (max - min + 1) + min)
-            );
-        }
+     // Gerar dados aleatórios para o gráfico
+function generateRandomData(min, max, count) {
+    return Array.from({length: count}, function() {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    });
+}
         
         // Atualizar display dos sensores
         function updateSensorDisplay(sensorData) {
@@ -1720,6 +1820,7 @@
                         <p><strong>Quantidade de Fardos:</strong> ${lot.quantity} (${lot.quantity * 30} kg)</p>
                         <p><strong>Localização:</strong> ${lot.location}</p>
                         <p><strong>Origem:</strong> ${lot.origin || 'Não informada'}</p>
+                        ${lot.coordinates ? `<p><strong>Coordenadas:</strong> ${lot.coordinates.latitude}, ${lot.coordinates.longitude}</p>` : ''}
                     </div>
                     <div>
                         <h4><i class="fas fa-clipboard-check"></i> Status</h4>
@@ -1957,6 +2058,27 @@
             openLotModal(lotId);
         }
         
+        // Obter localização geográfica
+        function getLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const lat = position.coords.latitude.toFixed(6);
+                        const lng = position.coords.longitude.toFixed(6);
+                        document.getElementById('lot-location').value = `GPS: ${lat}, ${lng}`;
+                        alert('Localização capturada com sucesso!');
+                    },
+                    (error) => {
+                        console.error("Erro ao obter localização:", error);
+                        alert("Não foi possível obter a localização. Verifique as permissões.");
+                    },
+                    { enableHighAccuracy: true, timeout: 5000 }
+                );
+            } else {
+                alert("Geolocalização não é suportada pelo seu navegador.");
+            }
+        }
+        
         // Simular dados IoT
         function simulateIoTData() {
             setInterval(() => {
@@ -2072,8 +2194,10 @@
             if (lot) {
                 viewLotDetails(lot.id);
             } else {
-                alert(`Lote com código ${code} não encontrado. Deseja cadastrar?`);
-                // Aqui você poderia abrir o modal de cadastro pré-preenchido com o código
+                if (confirm(`Lote com código ${code} não encontrado. Deseja cadastrar um novo lote?`)) {
+                    openLotModal();
+                    document.getElementById('lot-code').value = code;
+                }
             }
         }
         
@@ -2245,6 +2369,12 @@
             });
             
             monitorModal.style.display = 'block';
+        }
+        
+        // Atualizar estatísticas do armazém
+        function updateWarehouseStats() {
+            // Simular dados iniciais
+            document.getElementById('warehouse-temp').textContent = '23°C';
         }
         
         // Obter texto do status
