@@ -1,0 +1,1739 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MWsystem - Auditoria Armazém de Açúcar</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary: #1976D2;
+            --primary-dark: #1565C0;
+            --primary-light: #BBDEFB;
+            --secondary: #FFFFFF;
+            --accent: #FFC107;
+            --text: #212121;
+            --text-secondary: #757575;
+            --warning: #FFA000;
+            --danger: #D32F2F;
+            --success: #388E3C;
+            --info: #0288D1;
+        }
+        
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            color: var(--text);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        
+        header {
+            background-color: var(--primary);
+            color: white;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+        
+        .logo img {
+            height: 40px;
+            margin-right: 15px;
+        }
+        
+        nav ul {
+            display: flex;
+            list-style: none;
+        }
+        
+        nav ul li {
+            margin-left: 15px;
+        }
+        
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            padding: 5px 10px;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        
+        nav ul li a:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        nav ul li a i {
+            margin-right: 5px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            margin: 2rem auto;
+            padding: 0 1rem;
+            flex: 1;
+        }
+        
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+            border-left: 4px solid var(--primary);
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .card h3 {
+            margin-top: 0;
+            color: var(--primary-dark);
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+            display: flex;
+            align-items: center;
+            font-size: 1.1rem;
+        }
+        
+        .card h3 i {
+            margin-right: 10px;
+        }
+        
+        .stat {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary);
+            margin: 10px 0;
+            display: flex;
+            align-items: center;
+        }
+        
+        .stat i {
+            margin-right: 10px;
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px 16px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 14px;
+            transition: background-color 0.3s;
+            white-space: nowrap;
+        }
+        
+        .btn:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        .btn-warning {
+            background-color: var(--warning);
+        }
+        
+        .btn-warning:hover {
+            background-color: #FF8F00;
+        }
+        
+        .btn-danger {
+            background-color: var(--danger);
+        }
+        
+        .btn-danger:hover {
+            background-color: #B71C1C;
+        }
+        
+        .btn-info {
+            background-color: var(--info);
+        }
+        
+        .btn-info:hover {
+            background-color: #01579B;
+        }
+        
+        .btn-success {
+            background-color: var(--success);
+        }
+        
+        .btn-success:hover {
+            background-color: #2E7D32;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+        
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        th {
+            background-color: var(--primary);
+            color: white;
+            position: sticky;
+            top: 80px;
+        }
+        
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .status {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            color: white;
+            display: inline-flex;
+            align-items: center;
+            white-space: nowrap;
+        }
+        
+        .status-ok {
+            background-color: var(--success);
+        }
+        
+        .status-warning {
+            background-color: var(--warning);
+        }
+        
+        .status-danger {
+            background-color: var(--danger);
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            overflow-y: auto;
+            padding: 1rem;
+        }
+        
+        .modal-content {
+            background-color: white;
+            margin: 2rem auto;
+            padding: 1.5rem;
+            border-radius: 8px;
+            width: 100%;
+            max-width: 800px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            position: relative;
+        }
+        
+        .close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            color: #666;
+        }
+        
+        .close:hover {
+            color: #000;
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+        
+        .form-group input, 
+        .form-group select, 
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .form-row {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .form-row .form-group {
+            flex: 1;
+        }
+        
+        .tab-container {
+            margin-top: 1rem;
+        }
+        
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 1rem;
+            overflow-x: auto;
+        }
+        
+        .tab {
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+        
+        .tab.active {
+            border-bottom-color: var(--primary);
+            color: var(--primary);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .sensor-data {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .sensor-card {
+            background: white;
+            border-radius: 8px;
+            padding: 1rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        
+        .sensor-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin: 0.5rem 0;
+        }
+        
+        .sensor-ok {
+            color: var(--success);
+        }
+        
+        .sensor-warning {
+            color: var(--warning);
+        }
+        
+        .sensor-danger {
+            color: var(--danger);
+        }
+        
+        .chart-container {
+            height: 300px;
+            margin-top: 1rem;
+        }
+        
+        .search-container {
+            display: flex;
+            margin-bottom: 1rem;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+        
+        .search-input {
+            flex: 1;
+            min-width: 200px;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        .filter-select {
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background: white;
+            min-width: 150px;
+        }
+        
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 1.5rem;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .page-item {
+            padding: 0.5rem 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .page-item.active {
+            background-color: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        
+        .qr-code-container {
+            text-align: center;
+            margin: 1.5rem 0;
+        }
+        
+        .qr-code {
+            width: 180px;
+            height: 180px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 10px;
+            border: 1px solid #ddd;
+        }
+        
+        .rfid-tag {
+            display: inline-block;
+            background-color: #f5f5f5;
+            border: 1px solid #ddd;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            font-family: monospace;
+            margin-top: 0.5rem;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            margin-left: 10px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #333;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 4px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            z-index: 1000;
+            opacity: 0;
+            transition: all 0.3s ease;
+            max-width: 90%;
+            text-align: center;
+        }
+
+        .toast.show {
+            opacity: 1;
+        }
+
+        .toast.success {
+            background-color: var(--success);
+        }
+
+        .toast.error {
+            background-color: var(--danger);
+        }
+
+        .toast.warning {
+            background-color: var(--warning);
+        }
+        
+        .badge {
+            background-color: var(--danger);
+            color: white;
+            border-radius: 50%;
+            padding: 2px 6px;
+            font-size: 12px;
+            margin-left: 5px;
+        }
+        
+        .table-responsive {
+            overflow-x: auto;
+            width: 100%;
+        }
+        
+        .image-preview {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .image-preview-item {
+            position: relative;
+            width: 100px;
+            height: 100px;
+        }
+        
+        .image-preview-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+        
+        .image-preview-item button {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: var(--danger);
+            color: white;
+            border: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        
+        /* Responsividade */
+        @media (max-width: 992px) {
+            .dashboard {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                text-align: center;
+                gap: 1rem;
+            }
+            
+            nav ul {
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+            
+            nav ul li {
+                margin: 0 5px;
+            }
+            
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            
+            .modal-content {
+                margin: 1rem auto;
+                padding: 1rem;
+            }
+            
+            .card {
+                padding: 1rem;
+            }
+            
+            .btn {
+                padding: 6px 12px;
+                font-size: 12px;
+            }
+            
+            .stat {
+                font-size: 1.5rem;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .search-container {
+                flex-direction: column;
+            }
+            
+            .search-input, .filter-select {
+                width: 100%;
+            }
+            
+            .tabs {
+                flex-direction: column;
+                border-bottom: none;
+            }
+            
+            .tab {
+                border-bottom: none;
+                border-left: 3px solid transparent;
+            }
+            
+            .tab.active {
+                border-bottom: none;
+                border-left-color: var(--primary);
+            }
+        }
+        
+        /* Acessibilidade */
+        a:focus, button:focus, input:focus, select:focus, textarea:focus {
+            outline: 2px solid var(--accent);
+            outline-offset: 2px;
+        }
+        
+        /* Animações */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .modal-content {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <img src="https://via.placeholder.com/150x50?text=MWsystem" alt="MWsystem Logo">
+            <h1>Auditoria Armazém de Açúcar</h1>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="#"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                <li><a href="#"><i class="fas fa-pallet"></i> Lotes</a></li>
+                <li><a href="#"><i class="fas fa-chart-line"></i> Relatórios</a></li>
+                <li><a href="#"><i class="fas fa-bell"></i> Alertas <span class="badge" id="alert-count">0</span></a></li>
+                <li><a href="#" id="logout-btn"><i class="fas fa-sign-out-alt"></i> Sair</a></li>
+            </ul>
+        </nav>
+    </header>
+    
+    <div class="container">
+        <div class="dashboard">
+            <div class="card">
+                <h3><i class="fas fa-pallet"></i> Lotes Ativos</h3>
+                <div class="stat"><i class="fas fa-box-open"></i> <span id="active-lots">0</span></div>
+                <p>Total de lotes em armazenamento</p>
+                <a href="#" class="btn" style="margin-top: 10px;" id="view-all-lots"><i class="fas fa-list"></i> Ver Todos</a>
+            </div>
+            
+            <div class="card">
+                <h3><i class="fas fa-exclamation-triangle"></i> Alertas</h3>
+                <div class="stat"><i class="fas fa-bell"></i> <span id="alerts">0</span></div>
+                <p>Lotes com condições críticas</p>
+                <a href="#" class="btn btn-warning" style="margin-top: 10px;" id="view-alerts"><i class="fas fa-search"></i> Ver Alertas</a>
+            </div>
+            
+            <div class="card">
+                <h3><i class="fas fa-clipboard-check"></i> Auditorias</h3>
+                <div class="stat"><i class="fas fa-calendar-alt"></i> <span id="next-audits">0</span></div>
+                <p>Para esta semana</p>
+                <a href="#" class="btn btn-info" style="margin-top: 10px;" id="schedule-audit"><i class="fas fa-list"></i> Agendar</a>
+            </div>
+            
+            <div class="card">
+                <h3><i class="fas fa-thermometer-half"></i> Armazém</h3>
+                <div class="stat"><i class="fas fa-temperature-low"></i> <span id="warehouse-temp">--°C</span></div>
+                <p>Condições atuais</p>
+                <a href="#" class="btn" style="margin-top: 10px;" id="monitor-warehouse"><i class="fas fa-warehouse"></i> Monitorar</a>
+            </div>
+        </div>
+        
+        <div class="search-container">
+            <input type="text" class="search-input" placeholder="Pesquisar lotes..." id="search-input">
+            <select class="filter-select" id="status-filter">
+                <option value="">Todos Status</option>
+                <option value="ok">Normal</option>
+                <option value="warning">Atenção</option>
+                <option value="danger">Crítico</option>
+            </select>
+            <select class="filter-select" id="type-filter">
+                <option value="">Todos Tipos</option>
+                <option value="Cristal">Cristal</option>
+                <option value="Demerara">Demerara</option>
+                <option value="VHP">VHP</option>
+                <option value="Refinado">Refinado</option>
+            </select>
+            <button class="btn btn-success" id="export-btn"><i class="fas fa-file-export"></i> Exportar</button>
+            <button class="btn btn-info" id="refresh-btn"><i class="fas fa-sync-alt"></i> Atualizar</button>
+        </div>
+        
+        <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                <h3><i class="fas fa-list"></i> Últimos Lotes Registrados</h3>
+                <div style="display: flex; gap: 0.5rem;">
+                    <button class="btn" id="add-lot"><i class="fas fa-plus"></i> Adicionar Lote</button>
+                    <button class="btn btn-info" id="scan-qr"><i class="fas fa-qrcode"></i> Ler QR Code</button>
+                </div>
+            </div>
+            
+            <div class="table-responsive">
+                <table id="lots-table">
+                    <thead>
+                        <tr>
+                            <th>Código</th>
+                            <th>Tipo</th>
+                            <th>Data Produção</th>
+                            <th>Qtd. Fardos</th>
+                            <th>Localização</th>
+                            <th>Status</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan="7" style="text-align: center;">Carregando lotes...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="pagination" id="pagination"></div>
+        </div>
+    </div>
+    
+    <!-- Modal para adicionar lote -->
+    <div id="lot-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2><i class="fas fa-pallet"></i> Adicionar Novo Lote</h2>
+            
+            <div class="tabs">
+                <div class="tab active" data-tab="info">Informações Básicas</div>
+                <div class="tab" data-tab="quality">Controle de Qualidade</div>
+                <div class="tab" data-tab="sensors">Monitoramento</div>
+                <div class="tab" data-tab="identification">Identificação</div>
+            </div>
+            
+            <form id="lot-form">
+                <div class="tab-container">
+                    <div class="tab-content active" id="info-tab">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="lot-code">Código do Lote</label>
+                                <input type="text" id="lot-code" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label for="lot-date">Data de Produção</label>
+                                <input type="date" id="lot-date" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="lot-type">Tipo de Açúcar</label>
+                                <select id="lot-type" required>
+                                    <option value="">Selecione...</option>
+                                    <option value="Cristal">Cristal</option>
+                                    <option value="Demerara">Demerara</option>
+                                    <option value="VHP">VHP</option>
+                                    <option value="Refinado">Refinado</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="lot-quantity">Quantidade de Fardos</label>
+                                <input type="number" id="lot-quantity" min="1" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="lot-location">Localização no Armazém</label>
+                                <input type="text" id="lot-location" required placeholder="Ex: A12-B5">
+                                <button type="button" class="btn btn-info" style="margin-top: 5px; padding: 5px 10px;" id="get-location-btn">
+                                    <i class="fas fa-map-marker-alt"></i> Usar Minha Localização
+                                </button>
+                            </div>
+                            <div class="form-group">
+                                <label for="lot-origin">Origem (Talhão)</label>
+                                <input type="text" id="lot-origin" placeholder="Ex: TA-2023-015">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="lot-notes">Observações</label>
+                            <textarea id="lot-notes" placeholder="Informações adicionais sobre o lote"></textarea>
+                        </div>
+                    </div>
+                    
+                    <div class="tab-content" id="quality-tab">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="lot-moisture">Umidade (%)</label>
+                                <input type="number" step="0.01" id="lot-moisture" min="0" max="100">
+                            </div>
+                            <div class="form-group">
+                                <label for="lot-purity">Pureza (ICUMSA)</label>
+                                <input type="number" id="lot-purity" min="0">
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="lot-color">Cor</label>
+                                <input type="text" id="lot-color" placeholder="Ex: Branco, Amarelo">
+                            </div>
+                            <div class="form-group">
+                                <label for="lot-granulation">Granulação</label>
+                                <select id="lot-granulation">
+                                    <option value="">Selecione...</option>
+                                    <option value="Fina">Fina</option>
+                                    <option value="Média">Média</option>
+                                    <option value="Grossa">Grossa</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="lot-quality-notes">Observações de Qualidade</label>
+                            <textarea id="lot-quality-notes" placeholder="Problemas identificados, ações tomadas..."></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="lot-images">Fotos do Lote</label>
+                            <input type="file" id="lot-images" multiple accept="image/*">
+                            <div id="image-preview" class="image-preview"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="tab-content" id="sensors-tab">
+                        <h4><i class="fas fa-thermometer-half"></i> Dados dos Sensores</h4>
+                        
+                        <div class="sensor-data">
+                            <div class="sensor-card">
+                                <div><i class="fas fa-temperature-high"></i> Temperatura</div>
+                                <div class="sensor-value sensor-ok" id="sensor-temp">--°C</div>
+                                <div>Última leitura: <span id="temp-time">--:--:--</span></div>
+                            </div>
+                            
+                            <div class="sensor-card">
+                                <div><i class="fas fa-tint"></i> Umidade</div>
+                                <div class="sensor-value sensor-ok" id="sensor-humidity">--%</div>
+                                <div>Última leitura: <span id="humidity-time">--:--:--</span></div>
+                            </div>
+                            
+                            <div class="sensor-card">
+                                <div><i class="fas fa-bug"></i> Monitor de Pragas</div>
+                                <div class="sensor-value sensor-ok" id="sensor-pests">--</div>
+                                <div>Última verificação: <span id="pests-time">--/--/----</span></div>
+                            </div>
+                        </div>
+                        
+                        <div class="chart-container">
+                            <canvas id="sensor-chart"></canvas>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="lot-sensor-notes">Observações do Monitoramento</label>
+                            <textarea id="lot-sensor-notes" placeholder="Anomalias detectadas, ações tomadas..."></textarea>
+                        </div>
+                    </div>
+                    
+                    <div class="tab-content" id="identification-tab">
+                        <h4><i class="fas fa-qrcode"></i> Identificação do Lote</h4>
+                        
+                        <div class="form-group">
+                            <label>Identificador Automático</label>
+                            <div class="rfid-tag" id="rfid-tag">RFID: MW-<span id="rfid-code">------</span></div>
+                        </div>
+                        
+                        <div class="qr-code-container">
+                            <label>QR Code para Leitura Rápida</label>
+                            <div class="qr-code" id="qr-code-placeholder">
+                                <canvas id="qr-code-canvas"></canvas>
+                            </div>
+                            <button type="button" class="btn" id="print-qr-btn" style="margin-top: 10px;">
+                                <i class="fas fa-print"></i> Imprimir Etiqueta
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="display: flex; justify-content: flex-end; margin-top: 20px; gap: 10px;">
+                    <button type="button" class="btn btn-warning" id="cancel-btn">Cancelar</button>
+                    <button type="submit" class="btn" id="save-btn"><i class="fas fa-save"></i> Salvar Lote</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Modal de QR Code -->
+    <div id="qr-modal" class="modal">
+        <div class="modal-content" style="max-width: 500px; text-align: center;">
+            <span class="close">&times;</span>
+            <h2><i class="fas fa-qrcode"></i> Leitor de QR Code</h2>
+            
+            <div style="margin: 20px 0;">
+                <video id="qr-video" width="100%" style="border: 1px solid #ddd; background: black;"></video>
+            </div>
+            
+            <div id="qr-result" style="display: none;">
+                <h3>Código Lido:</h3>
+                <p id="qr-code-result" style="word-break: break-all; padding: 0 10px;"></p>
+                <button class="btn" id="qr-confirm-btn" style="margin-top: 10px;"><i class="fas fa-check"></i> Confirmar</button>
+            </div>
+            
+            <div id="qr-instructions">
+                <p>Aponte a câmera para o QR Code do fardo ou lote</p>
+                <button class="btn" id="start-scan" style="margin-top: 10px;"><i class="fas fa-camera"></i> Iniciar Leitura</button>
+            </div>
+            
+            <div id="qr-error" style="display: none; color: var(--danger); margin-top: 10px; text-align: center;">
+                <i class="fas fa-exclamation-circle"></i> <span id="qr-error-message"></span>
+                <div id="qr-help-link" style="margin-top: 10px;"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
+    
+    <script>
+        // Módulo de Estado da Aplicação
+        const AppState = (() => {
+            let state = {
+                lots: [],
+                currentPage: 1,
+                itemsPerPage: 10,
+                isLoading: false,
+                user: {
+                    name: "Administrador",
+                    role: "admin"
+                }
+            };
+
+            return {
+                getState: () => state,
+                setState: (newState) => {
+                    state = { ...state, ...newState };
+                    return state;
+                },
+                getLots: () => state.lots,
+                setLots: (lots) => {
+                    state.lots = lots;
+                    return state.lots;
+                },
+                getCurrentPage: () => state.currentPage,
+                setCurrentPage: (page) => {
+                    state.currentPage = page;
+                    return state.currentPage;
+                },
+                getLoading: () => state.isLoading,
+                setLoading: (loading) => {
+                    state.isLoading = loading;
+                    return state.isLoading;
+                },
+                getUser: () => state.user
+            };
+        })();
+
+        // Módulo de Utilitários
+        const Utils = {
+            showToast: (message, type = 'success', duration = 3000) => {
+                const toast = document.getElementById('toast');
+                toast.textContent = message;
+                toast.className = `toast show ${type}`;
+                
+                setTimeout(() => {
+                    toast.className = 'toast';
+                }, duration);
+            },
+            
+            formatDate: (dateStr) => {
+                const date = new Date(dateStr);
+                return date.toLocaleDateString('pt-BR');
+            },
+            
+            formatDateTime: (dateStr) => {
+                const date = new Date(dateStr);
+                return date.toLocaleString('pt-BR');
+            },
+            
+            generateRandomData: (min, max, count) => {
+                return Array.from({length: count}, () => {
+                    return Math.floor(Math.random() * (max - min + 1)) + min;
+                });
+            },
+            
+            debounce: (func, delay) => {
+                let timeoutId;
+                return function(...args) {
+                    clearTimeout(timeoutId);
+                    timeoutId = setTimeout(() => {
+                        func.apply(this, args);
+                    }, delay);
+                };
+            }
+        };
+
+        // Módulo de API (simulação)
+        const API = {
+            fetchLots: async () => {
+                // Simular delay de rede
+                await new Promise(resolve => setTimeout(resolve, 500));
+                
+                // Retornar array vazio para não mostrar registros
+                return [];
+            },
+            
+            saveLot: async (lotData) => {
+                // Simular delay de rede
+                await new Promise(resolve => setTimeout(resolve, 800));
+                
+                // Em uma aplicação real, faria uma requisição para a API
+                return { success: true, data: lotData };
+            }
+        };
+
+        // Módulo de UI
+        const UI = {
+            init: async () => {
+                // Carregar dados iniciais
+                await UI.loadLots();
+                
+                // Configurar eventos
+                UI.setupEventListeners();
+                
+                // Iniciar monitoramento
+                UI.simulateIoTData();
+                
+                // Atualizar estatísticas
+                UI.updateWarehouseStats();
+            },
+            
+            loadLots: async () => {
+                try {
+                    AppState.setLoading(true);
+                    const lots = await API.fetchLots();
+                    AppState.setLots(lots);
+                    UI.renderLots();
+                    UI.updateStats();
+                } catch (error) {
+                    console.error("Erro ao carregar lotes:", error);
+                    Utils.showToast("Erro ao carregar lotes", "error");
+                } finally {
+                    AppState.setLoading(false);
+                }
+            },
+            
+            renderLots: () => {
+                const state = AppState.getState();
+                const { lots, currentPage, itemsPerPage } = state;
+                
+                // Filtrar lotes
+                const searchTerm = document.getElementById('search-input').value.toLowerCase();
+                const statusFilterValue = document.getElementById('status-filter').value;
+                const typeFilterValue = document.getElementById('type-filter').value;
+                
+                const filteredLots = lots.filter(lot => {
+                    const matchesSearch = lot.code.toLowerCase().includes(searchTerm) || 
+                                        lot.location.toLowerCase().includes(searchTerm) ||
+                                        (lot.origin && lot.origin.toLowerCase().includes(searchTerm));
+                    
+                    const matchesStatus = !statusFilterValue || lot.status === statusFilterValue;
+                    const matchesType = !typeFilterValue || lot.type === typeFilterValue;
+                    
+                    return matchesSearch && matchesStatus && matchesType;
+                });
+                
+                // Paginação
+                const totalPages = Math.ceil(filteredLots.length / itemsPerPage);
+                const startIndex = (currentPage - 1) * itemsPerPage;
+                const paginatedLots = filteredLots.slice(startIndex, startIndex + itemsPerPage);
+                
+                // Limpar tabela
+                const tableBody = document.getElementById('lots-table').getElementsByTagName('tbody')[0];
+                tableBody.innerHTML = '';
+                
+                // Preencher tabela
+                if (paginatedLots.length === 0) {
+                    tableBody.innerHTML = '<tr><td colspan="7" style="text-align: center;">Nenhum lote cadastrado</td></tr>';
+                } else {
+                    paginatedLots.forEach(lot => {
+                        const row = tableBody.insertRow();
+                        row.setAttribute('data-id', lot.id);
+                        
+                        // Determinar classe de status
+                        let statusClass = '';
+                        let statusText = '';
+                        let statusIcon = '';
+                        
+                        switch(lot.status) {
+                            case 'ok':
+                                statusClass = 'status-ok';
+                                statusText = 'Normal';
+                                statusIcon = 'fa-check-circle';
+                                break;
+                            case 'warning':
+                                statusClass = 'status-warning';
+                                statusText = 'Atenção';
+                                statusIcon = 'fa-exclamation-triangle';
+                                break;
+                            case 'danger':
+                                statusClass = 'status-danger';
+                                statusText = 'Crítico';
+                                statusIcon = 'fa-times-circle';
+                                break;
+                        }
+                        
+                        row.innerHTML = `
+                            <td>${lot.code}</td>
+                            <td>${lot.type}</td>
+                            <td>${lot.displayDate}</td>
+                            <td>${lot.quantity}</td>
+                            <td>${lot.location}</td>
+                            <td><span class="status ${statusClass}"><i class="fas ${statusIcon}"></i> ${statusText}</span></td>
+                            <td>
+                                <button class="btn" style="padding: 5px 10px; font-size: 12px;" onclick="UI.viewLotDetails(${lot.id})"><i class="fas fa-eye"></i> Detalhes</button>
+                            </td>
+                        `;
+                    });
+                }
+                
+                // Atualizar paginação
+                UI.updatePagination(totalPages);
+            },
+            
+            updatePagination: (totalPages) => {
+                const pagination = document.getElementById('pagination');
+                pagination.innerHTML = '';
+                
+                if (totalPages <= 1) return;
+                
+                const currentPage = AppState.getCurrentPage();
+                
+                // Botão anterior
+                const prevBtn = document.createElement('span');
+                prevBtn.className = 'page-item';
+                prevBtn.innerHTML = '<i class="fas fa-chevron-left"></i>';
+                prevBtn.addEventListener('click', () => {
+                    if (currentPage > 1) {
+                        AppState.setCurrentPage(currentPage - 1);
+                        UI.renderLots();
+                    }
+                });
+                pagination.appendChild(prevBtn);
+                
+                // Páginas
+                for (let i = 1; i <= totalPages; i++) {
+                    const pageBtn = document.createElement('span');
+                    pageBtn.className = `page-item ${i === currentPage ? 'active' : ''}`;
+                    pageBtn.textContent = i;
+                    pageBtn.addEventListener('click', () => {
+                        AppState.setCurrentPage(i);
+                        UI.renderLots();
+                    });
+                    pagination.appendChild(pageBtn);
+                }
+                
+                // Botão próximo
+                const nextBtn = document.createElement('span');
+                nextBtn.className = 'page-item';
+                nextBtn.innerHTML = '<i class="fas fa-chevron-right"></i>';
+                nextBtn.addEventListener('click', () => {
+                    if (currentPage < totalPages) {
+                        AppState.setCurrentPage(currentPage + 1);
+                        UI.renderLots();
+                    }
+                });
+                pagination.appendChild(nextBtn);
+            },
+            
+            updateStats: () => {
+                const lots = AppState.getLots();
+                const searchTerm = document.getElementById('search-input').value.toLowerCase();
+                const statusFilterValue = document.getElementById('status-filter').value;
+                const typeFilterValue = document.getElementById('type-filter').value;
+                
+                const filteredLots = lots.filter(lot => {
+                    const matchesSearch = lot.code.toLowerCase().includes(searchTerm) || 
+                                        lot.location.toLowerCase().includes(searchTerm) ||
+                                        (lot.origin && lot.origin.toLowerCase().includes(searchTerm));
+                    
+                    const matchesStatus = !statusFilterValue || lot.status === statusFilterValue;
+                    const matchesType = !typeFilterValue || lot.type === typeFilterValue;
+                    
+                    return matchesSearch && matchesStatus && matchesType;
+                });
+                
+                document.getElementById('active-lots').textContent = filteredLots.length;
+                
+                const alertCount = filteredLots.filter(lot => lot.status !== 'ok').length;
+                document.getElementById('alerts').textContent = alertCount;
+                document.getElementById('alert-count').textContent = alertCount > 0 ? alertCount : '';
+                
+                // Atualizar cor do card de alertas
+                const alertCard = document.querySelector('.dashboard .card:nth-child(2)');
+                if (alertCount > 0) {
+                    alertCard.style.borderLeft = '4px solid var(--warning)';
+                } else {
+                    alertCard.style.borderLeft = '4px solid var(--primary)';
+                }
+                
+                // Atualizar próximas auditorias (simulação)
+                document.getElementById('next-audits').textContent = Math.min(5, filteredLots.length);
+            },
+            
+            openLotModal: () => {
+                const form = document.getElementById('lot-form');
+                form.reset();
+                
+                // Gerar código do lote
+                const today = new Date();
+                const dateStr = `${today.getFullYear()}${String(today.getMonth() + 1).padStart(2, '0')}${String(today.getDate()).padStart(2, '0')}`;
+                const randomNum = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+                const lotCode = `MW-${dateStr}-${randomNum}`;
+                
+                document.getElementById('lot-code').value = lotCode;
+                document.getElementById('lot-date').valueAsDate = today;
+                
+                // Gerar RFID e QR Code
+                UI.generateRFID(lotCode);
+                UI.generateQRCode(lotCode);
+                
+                // Resetar tabs
+                UI.switchTab('info');
+                document.getElementById('lot-modal').style.display = 'block';
+            },
+            
+            generateRFID: (lotCode) => {
+                const rfid = `MW${Math.floor(100 + Math.random() * 900)}-${lotCode.replace('MW-', '').replace('-', '')}`;
+                document.getElementById('rfid-tag').textContent = `RFID: ${rfid}`;
+                return rfid;
+            },
+            
+            generateQRCode: (text) => {
+                const qrCodeElement = document.getElementById('qr-code-canvas');
+                QRCode.toCanvas(qrCodeElement, text, { width: 150 }, (error) => {
+                    if (error) console.error(error);
+                });
+            },
+            
+            updateSensorDisplay: (sensorData) => {
+                document.getElementById('sensor-temp').textContent = `${sensorData.temperature}°C`;
+                document.getElementById('sensor-humidity').textContent = `${sensorData.humidity}%`;
+                document.getElementById('sensor-pests').textContent = sensorData.pests;
+                
+                const lastUpdate = new Date(sensorData.lastUpdate);
+                document.getElementById('temp-time').textContent = lastUpdate.toLocaleTimeString();
+                document.getElementById('humidity-time').textContent = lastUpdate.toLocaleTimeString();
+                document.getElementById('pests-time').textContent = lastUpdate.toLocaleDateString('pt-BR');
+                
+                // Atualizar classes de status
+                const tempElem = document.getElementById('sensor-temp');
+                const humidityElem = document.getElementById('sensor-humidity');
+                const pestsElem = document.getElementById('sensor-pests');
+                
+                // Reset classes
+                tempElem.className = 'sensor-value';
+                humidityElem.className = 'sensor-value';
+                pestsElem.className = 'sensor-value';
+                
+                // Temperatura
+                if (sensorData.temperature > 25) {
+                    tempElem.classList.add('sensor-warning');
+                } else if (sensorData.temperature > 27) {
+                    tempElem.classList.add('sensor-danger');
+                } else {
+                    tempElem.classList.add('sensor-ok');
+                }
+                
+                // Umidade
+                if (sensorData.humidity > 65) {
+                    humidityElem.classList.add('sensor-warning');
+                } else if (sensorData.humidity > 70) {
+                    humidityElem.classList.add('sensor-danger');
+                } else {
+                    humidityElem.classList.add('sensor-ok');
+                }
+                
+                // Pragas
+                if (sensorData.pests === 'Alerta') {
+                    pestsElem.classList.add('sensor-danger');
+                } else {
+                    pestsElem.classList.add('sensor-ok');
+                }
+            },
+            
+            switchTab: (tabId) => {
+                // Atualizar tabs
+                document.querySelectorAll('.tab').forEach(tab => {
+                    if (tab.getAttribute('data-tab') === tabId) {
+                        tab.classList.add('active');
+                    } else {
+                        tab.classList.remove('active');
+                    }
+                });
+                
+                // Atualizar conteúdo
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    if (content.id === `${tabId}-tab`) {
+                        content.classList.add('active');
+                    } else {
+                        content.classList.remove('active');
+                    }
+                });
+            },
+            
+            saveLot: async (e) => {
+                e.preventDefault();
+                
+                const saveBtn = document.getElementById('save-btn');
+                const originalText = saveBtn.innerHTML;
+                saveBtn.innerHTML = '<span class="loading"></span> Salvando...';
+                saveBtn.disabled = true;
+                
+                try {
+                    const lotCode = document.getElementById('lot-code').value;
+                    
+                    const lotData = {
+                        id: Date.now(), // Usar timestamp como ID único
+                        code: lotCode,
+                        type: document.getElementById('lot-type').value,
+                        date: document.getElementById('lot-date').value,
+                        displayDate: new Date(document.getElementById('lot-date').value).toLocaleDateString('pt-BR'),
+                        quantity: parseInt(document.getElementById('lot-quantity').value),
+                        location: document.getElementById('lot-location').value,
+                        origin: document.getElementById('lot-origin').value || null,
+                        notes: document.getElementById('lot-notes').value || null,
+                        status: 'ok',
+                        quality: {
+                            moisture: parseFloat(document.getElementById('lot-moisture').value) || null,
+                            purity: parseInt(document.getElementById('lot-purity').value) || null,
+                            color: document.getElementById('lot-color').value || null,
+                            granulation: document.getElementById('lot-granulation').value || null,
+                            notes: document.getElementById('lot-quality-notes').value || null
+                        },
+                        sensors: {
+                            temperature: 24.0 + (Math.random() * 2 - 1),
+                            humidity: 60 + (Math.random() * 10 - 5),
+                            pests: "Normal",
+                            lastUpdate: new Date().toISOString()
+                        },
+                        rfid: document.getElementById('rfid-tag').textContent.replace('RFID: ', ''),
+                        history: [],
+                        audits: [],
+                        documents: []
+                    };
+                    
+                    // Adicionar evento de histórico
+                    const user = AppState.getUser();
+                    lotData.history.push({
+                        date: new Date().toISOString(),
+                        action: "Cadastro",
+                        user: user.name,
+                        details: "Lote cadastrado no sistema"
+                    });
+                    
+                    // Simular chamada à API
+                    const response = await API.saveLot(lotData);
+                    
+                    if (response.success) {
+                        const lots = [...AppState.getLots(), lotData];
+                        AppState.setLots(lots);
+                        document.getElementById('lot-modal').style.display = 'none';
+                        UI.renderLots();
+                        Utils.showToast(`Lote ${lotCode} salvo com sucesso!`);
+                    }
+                } catch (error) {
+                    console.error("Erro ao salvar lote:", error);
+                    Utils.showToast("Erro ao salvar lote", "error");
+                } finally {
+                    saveBtn.innerHTML = originalText;
+                    saveBtn.disabled = false;
+                }
+            },
+            
+            startQRScan: () => {
+                const qrInstructions = document.getElementById('qr-instructions');
+                const qrResult = document.getElementById('qr-result');
+                const qrError = document.getElementById('qr-error');
+                const qrHelpLink = document.getElementById('qr-help-link');
+                
+                qrInstructions.style.display = 'none';
+                qrResult.style.display = 'none';
+                qrError.style.display = 'none';
+                qrHelpLink.innerHTML = '';
+
+                // Verificar se o navegador suporta a API de mídia
+                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                    qrError.style.display = 'block';
+                    document.getElementById('qr-error-message').textContent = 
+                        'Seu navegador não suporta acesso à câmera. Tente no Chrome (Android) ou Safari (iOS).';
+                    qrInstructions.style.display = 'block';
+                    return;
+                }
+
+                // Configurações específicas para iOS
+                const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+                const constraints = {
+                    video: {
+                        facingMode: "environment",
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 },
+                        ...(isIOS && { 
+                            aspectRatio: { exact: 1.333 } // Melhora a performance no iOS
+                        })
+                    }
+                };
+
+                // Solicitar permissão
+                navigator.mediaDevices.getUserMedia(constraints)
+                    .then(function(stream) {
+                        const qrVideo = document.getElementById('qr-video');
+                        qrVideo.srcObject = stream;
+                        
+                        // Configuração especial para iOS
+                        if (isIOS) {
+                            qrVideo.setAttribute('playsinline', true);
+                            qrVideo.setAttribute('muted', true);
+                            qrVideo.setAttribute('autoplay', true);
+                        }
+                        
+                        qrVideo.play()
+                            .then(() => {
+                                UI.scanQR();
+                            })
+                            .catch(err => {
+                                console.error("Erro ao iniciar vídeo:", err);
+                                qrError.style.display = 'block';
+                                document.getElementById('qr-error-message').textContent = 
+                                    'Não foi possível iniciar a câmera. Recarregue a página e tente novamente.';
+                                qrInstructions.style.display = 'block';
+                                UI.stopQRScan();
+                            });
+                    })
+                    .catch(function(err) {
+                        console.error("Erro de permissão:", err);
+                        
+                        let errorMessage = "Erro ao acessar a câmera";
+                        let showHelp = false;
+                        
+                        switch(err.name) {
+                            case 'NotAllowedError':
+                                errorMessage = "Permissão para câmera negada. Por favor, autorize o acesso nas configurações do seu dispositivo.";
+                                showHelp = true;
+                                break;
+                            case 'NotFoundError':
+                                errorMessage = "Nenhuma câmera traseira encontrada";
+                                break;
+                            case 'NotReadableError':
+                                errorMessage = "A câmera está em uso por outro aplicativo";
+                                break;
+                            case 'OverconstrainedError':
+                                errorMessage = "Configuração de câmera não suportada";
+                                break;
+                        }
+                        
+                        qrError.style.display = 'block';
+                        document.getElementById('qr-error-message').textContent = errorMessage;
+                        qrInstructions.style.display = 'block';
+                        
+                        if (showHelp) {
+                            const helpLink = document.createElement('a');
+                            helpLink.href = '#';
+                            helpLink.style.color = 'var(--primary)';
+                            helpLink.style.textDecoration = 'underline';
+                            helpLink.textContent = isIOS ?
+                                'Como permitir acesso à câmera no iOS' :
+                                'Como permitir acesso à câmera no Android';
+                            
+                            helpLink.addEventListener('click', (e) => {
+                                e.preventDefault();
+                                UI.showCameraHelp(isIOS);
+                            });
+                            
+                            qrHelpLink.appendChild(helpLink);
+                        }
+                    });
+            },
+            
+            showCameraHelp: (isIOS) => {
+                const helpMessage = isIOS ?
+                    `Para permitir acesso à câmera no iOS:
+                    1. Vá para Ajustes > Safari
+                    2. Role até "Configurações de Câmera"
+                    3. Certifique-se que está "Permitido"
+                    4. Volte para esta página e tente novamente` :
+                    `Para permitir acesso à câmera no Android:
+                    1. Toque no ícone de cadeado na barra de URL
+                    2. Selecione "Configurações do Site"
+                    3. Encontre "Câmera" e mude para "Permitir"
+                    4. Recarregue a página e tente novamente`;
+                
+                alert(helpMessage);
+            },
+            
+            stopQRScan: () => {
+                const qrVideo = document.getElementById('qr-video');
+                if (qrVideo.srcObject) {
+                    qrVideo.srcObject.getTracks().forEach(track => track.stop());
+                    qrVideo.srcObject = null;
+                }
+            },
+            
+            scanQR: () => {
+                const qrVideo = document.getElementById('qr-video');
+                
+                // Verificar se o vídeo está pronto e tem dimensões válidas
+                if (qrVideo.readyState === qrVideo.HAVE_ENOUGH_DATA && qrVideo.videoWidth > 0 && qrVideo.videoHeight > 0) {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = qrVideo.videoWidth;
+                    canvas.height = qrVideo.videoHeight;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(qrVideo, 0, 0, canvas.width, canvas.height);
+                    
+                    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                    const code = jsQR(imageData.data, imageData.width, imageData.height);
+                    
+                    if (code) {
+                        const qrResult = document.getElementById('qr-result');
+                        qrResult.style.display = 'block';
+                        document.getElementById('qr-code-result').textContent = code.data;
+                        UI.stopQRScan();
+                        return;
+                    }
+                }
+                
+                requestAnimationFrame(UI.scanQR);
+            },
+            
+            simulateIoTData: () => {
+                setInterval(() => {
+                    // Gerar dados aleatórios
+                    const now = new Date();
+                    const temp = 23 + (Math.random() * 4 - 2); // Entre 21 e 25
+                    
+                    // Atualizar monitoramento do armazém
+                    document.getElementById('warehouse-temp').textContent = `${temp.toFixed(1)}°C`;
+                }, 3000);
+            },
+            
+            updateWarehouseStats: () => {
+                document.getElementById('warehouse-temp').textContent = '23°C';
+            },
+            
+            setupEventListeners: () => {
+                // Fechar modais
+                Array.from(document.getElementsByClassName('close')).forEach(close => {
+                    close.addEventListener('click', () => {
+                        document.getElementById('lot-modal').style.display = 'none';
+                        document.getElementById('qr-modal').style.display = 'none';
+                        UI.stopQRScan();
+                    });
+                });
+                
+                // Fechar modais ao clicar fora
+                window.addEventListener('click', (event) => {
+                    if (event.target.classList.contains('modal')) {
+                        event.target.style.display = 'none';
+                        if (event.target.id === 'qr-modal') {
+                            UI.stopQRScan();
+                        }
+                    }
+                });
+                
+                // Abrir modal de adição
+                document.getElementById('add-lot').addEventListener('click', () => {
+                    UI.openLotModal();
+                });
+                
+                // Botão de cancelar
+                document.getElementById('cancel-btn').addEventListener('click', () => {
+                    document.getElementById('lot-modal').style.display = 'none';
+                });
+                
+                // Botão de scan QR
+                document.getElementById('scan-qr').addEventListener('click', () => {
+                    document.getElementById('qr-modal').style.display = 'block';
+                });
+                
+                // Iniciar scan QR
+                document.getElementById('start-scan').addEventListener('click', () => {
+                    UI.startQRScan();
+                });
+                
+                // Confirmar QR
+                document.getElementById('qr-confirm-btn').addEventListener('click', () => {
+                    const qrCode = document.getElementById('qr-code-result').textContent;
+                    if (qrCode) {
+                        document.getElementById('lot-code').value = qrCode;
+                        document.getElementById('qr-modal').style.display = 'none';
+                        document.getElementById('lot-modal').style.display = 'block';
+                    }
+                });
+                
+                // Filtros e busca com debounce
+                document.getElementById('search-input').addEventListener('input', Utils.debounce(() => {
+                    AppState.setCurrentPage(1);
+                    UI.renderLots();
+                }, 300));
+                
+                document.getElementById('status-filter').addEventListener('change', () => {
+                    AppState.setCurrentPage(1);
+                    UI.renderLots();
+                });
+                
+                document.getElementById('type-filter').addEventListener('change', () => {
+                    AppState.setCurrentPage(1);
+                    UI.renderLots();
+                });
+                
+                // Tabs
+                document.querySelectorAll('.tab').forEach(tab => {
+                    tab.addEventListener('click', () => {
+                        const tabId = tab.getAttribute('data-tab');
+                        UI.switchTab(tabId);
+                    });
+                });
+                
+                // Formulário
+                document.getElementById('lot-form').addEventListener('submit', (e) => {
+                    UI.saveLot(e);
+                });
+                
+                // Botão de refresh
+                document.getElementById('refresh-btn').addEventListener('click', () => {
+                    UI.loadLots();
+                });
+                
+                // Obter localização
+                document.getElementById('get-location-btn').addEventListener('click', (e) => {
+                    e.preventDefault();
+                    UI.getLocation();
+                });
+                
+                // Botão de logout
+                document.getElementById('logout-btn').addEventListener('click', (e) => {
+                    e.preventDefault();
+                    if (confirm('Deseja realmente sair do sistema?')) {
+                        Utils.showToast('Você foi desconectado com sucesso', 'success');
+                        setTimeout(() => {
+                            window.location.href = 'login.html';
+                        }, 1000);
+                    }
+                });
+                
+                // Visualizar todos os lotes
+                document.getElementById('view-all-lots').addEventListener('click', (e) => {
+                    e.preventDefault();
+                    UI.renderLots();
+                });
+                
+                // Visualizar alertas
+                document.getElementById('view-alerts').addEventListener('click', (e) => {
+                    e.preventDefault();
+                    UI.renderLots();
+                });
+                
+                // Preview de imagens
+                document.getElementById('lot-images').addEventListener('change', function(e) {
+                    const preview = document.getElementById('image-preview');
+                    preview.innerHTML = '';
+                    
+                    for (const file of e.target.files) {
+                        if (file.type.startsWith('image/')) {
+                            const reader = new FileReader();
+                            reader.onload = function(e) {
+                                const previewItem = document.createElement('div');
+                                previewItem.className = 'image-preview-item';
+                                previewItem.innerHTML = `
+                                    <img src="${e.target.result}" alt="Preview">
+                                    <button type="button"><i class="fas fa-times"></i></button>
+                                `;
+                                preview.appendChild(previewItem);
+                                
+                                // Adicionar evento para remover imagem
+                                previewItem.querySelector('button').addEventListener('click', () => {
+                                    previewItem.remove();
+                                });
+                            };
+                            reader.readAsDataURL(file);
+                        }
+                    }
+                });
+            },
+            
+            getLocation: () => {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(
+                        (position) => {
+                            const lat = position.coords.latitude.toFixed(6);
+                            const lng = position.coords.longitude.toFixed(6);
+                            document.getElementById('lot-location').value = `GPS: ${lat}, ${lng}`;
+                            Utils.showToast('Localização capturada com sucesso!');
+                        },
+                        (error) => {
+                            console.error("Erro ao obter localização:", error);
+                            Utils.showToast("Não foi possível obter a localização. Verifique as permissões.", "error");
+                        },
+                        { enableHighAccuracy: true, timeout: 5000 }
+                    );
+                } else {
+                    Utils.showToast("Geolocalização não é suportada pelo seu navegador.", "warning");
+                }
+            }
+        };
+
+        // Inicializar a aplicação
+        document.addEventListener('DOMContentLoaded', () => {
+            UI.init();
+        });
+    </script>
+</body>
+</html>
